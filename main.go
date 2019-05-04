@@ -1,14 +1,23 @@
 package main
 
 import (
-	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/PTT/parser"
+	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/PTT/Parser"
 	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/engine"
+	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/scheduler"
 )
 
-const PTTUrl = "https://www.ptt.cc/bbs/hotboards.html"
+const PTTHotBoard = "https://www.ptt.cc/bbs/hotboards.html"
 
 func main() {
-	engine.Run(engine.Request{
-		Url:       PTTUrl,
-		ParseFunc: parser.ParsetopBoardsList})
+	crawlerEngine := engine.ConcurrentEngine{
+		Scheduler:   &scheduler.SimpleScheduler{},
+		WorkerCount: 10,
+	}
+
+	//crawlerEngine := engine.SimpleEngine{}
+
+	crawlerEngine.Run(engine.Request{
+		URL:       PTTHotBoard,
+		ParseFunc: Parser.ParseTopBoardList,
+	})
 }
