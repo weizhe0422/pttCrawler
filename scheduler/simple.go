@@ -11,5 +11,7 @@ func (s *SimpleScheduler) ConfigureWorkChan(c chan engine.Request) {
 }
 
 func (s *SimpleScheduler) Submit(r engine.Request) {
-	go func() {s.workChan <- r}()
+	go func(){
+		s.workChan <- r
+	}()
 }

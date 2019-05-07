@@ -1,4 +1,4 @@
-package Parser
+package parser
 
 import (
 	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/engine"
@@ -16,15 +16,14 @@ const BoardListReg = `        <div class="b-ent">
 
 const BoardUrlHead = "https://www.ptt.cc"
 
-func ParseTopBoardList(contents []byte) engine.ParseResult {
+func ParseHotBoardList(content []byte) engine.ParseResult {
 	var (
 		compile *regexp.Regexp
 		matchs  [][][]byte
 		result  engine.ParseResult
 	)
-
 	compile = regexp.MustCompile(BoardListReg)
-	matchs = compile.FindAllSubmatch(contents, -1)
+	matchs = compile.FindAllSubmatch(content, -1)
 
 	result = engine.ParseResult{}
 
@@ -32,9 +31,8 @@ func ParseTopBoardList(contents []byte) engine.ParseResult {
 		result.Items = append(result.Items, "Board Name: "+string(match[2]))
 		result.Requests = append(result.Requests, engine.Request{
 			URL:       BoardUrlHead + string(match[1]),
-			ParseFunc: ParseArticleList, //engine.NilParseFunc,
+			ParseFunc: ParseArticleList,
 		})
 	}
-
 	return result
 }

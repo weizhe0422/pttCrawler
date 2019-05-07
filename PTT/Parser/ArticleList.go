@@ -1,8 +1,7 @@
-package Parser
+package parser
 
 import (
 	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/engine"
-	"log"
 	"regexp"
 )
 
@@ -20,9 +19,9 @@ func ParseArticleList(content []byte) engine.ParseResult {
 	matchs = compile.FindAllSubmatch(content, -1)
 
 	result = engine.ParseResult{}
+
 	for _, match := range matchs {
-		result.Items = append(result.Items, "Article: "+string(match[2]))
-		log.Println("Article Link:", ArticleURLHead+string(match[1]))
+		result.Items = append(result.Items, "Article title: "+string(match[2]))
 		result.Requests = append(result.Requests, engine.Request{
 			URL:       ArticleURLHead + string(match[1]),
 			ParseFunc: engine.NilParseFunc,

@@ -6,34 +6,35 @@ import (
 	"log"
 )
 
+
 type SimpleEngine struct {
 
 }
 
 func (SimpleEngine) Run(seeds ...Request) {
 	var (
-		request     []Request
-		parseResult ParseResult
+		requests    []Request
+		r           Request
 		err         error
+		parseResult ParseResult
 	)
+
 	for _, r := range seeds {
-		request = append(request, r)
+		requests = append(requests, r)
 	}
 
-	for len(request) > 0 {
-		r := request[0]
-		request = request[1:]
+	for len(requests) > 0 {
+		r = requests[0]
+		requests = requests[1:]
 
 		if parseResult, err = worker(r); err != nil {
 			continue
 		}
 
-		request = append(request, parseResult.Requests...)
-
+		requests = append(requests, parseResult.Requests...)
 		for _, item := range parseResult.Items {
-			log.Printf("get item: %s", item)
+			log.Printf("Get item: %v", item)
 		}
-
 	}
 }
 
@@ -42,11 +43,8 @@ func worker(r Request) (ParseResult, error) {
 		content []byte
 		ok      bool
 	)
-
-	log.Printf("fetching: %s", r.URL)
 	if content, ok = Fetcher.Fetch(r.URL); !ok {
-		log.Printf("failed to fetch %s", r.URL)
-		return ParseResult{}, fmt.Errorf("failed to fetch %s", r.URL)
+		return ParseResult{}, fmt.Errorf("failed to fetch: %s", r.URL)
 	}
 
 	return r.ParseFunc(content), nil

@@ -1,61 +1,67 @@
 package engine
 
-import "fmt"
+import "log"
 
-type ConcurrentEngine struct {
-	Scheduler   Scheduler
-	WorkerCount int
+type Concurrent struct {
+	Scheduler Scheduler
+	WorkCount int
 }
+
 
 type Scheduler interface {
 	Submit(Request)
 	ConfigureWorkChan(chan Request)
+	WorkerReady(chan Request)
+	Run()
 }
 
-func (c *ConcurrentEngine) Run(seeds ...Request) {
-	var (
-		in     chan Request
-		out    chan ParseResult
+func (c *Concurrent) Run (seeds ...Request){
+	var(
+		out chan ParseResult
 		result ParseResult
 	)
+
+	out = make(chan ParseResult)
+	c.Scheduler.Run()
+
+	for i := 0; i < c.WorkCount; i++{
+		createWorker(out, c.Scheduler)
+	}
 
 	for _, r := range seeds {
 		c.Scheduler.Submit(r)
 	}
 
-	in = make(chan Request)
-	out = make(chan ParseResult)
-	c.Scheduler.ConfigureWorkChan(in)
+	for{
+		result = <- out
 
-	for i := 0; i < c.WorkerCount; i++ {
-		createWorker(in, out)
-	}
-
-	for {
-		result = <-out
 		for _, item := range result.Items {
-			fmt.Printf("Got items: %v", item)
+			log.Printf("Got item: %v", item)
 		}
+
 		for _, request := range result.Requests {
 			c.Scheduler.Submit(request)
 		}
 	}
 }
 
-func createWorker(in chan Request, out chan ParseResult) {
-	var (
+func createWorker(out chan ParseResult, s Scheduler){
+	var(
 		request Request
-		result  ParseResult
-		err     error
+		parseResult ParseResult
+		err error
+		in chan Request
 	)
-	go func() {
-		for {
-			request = <-in
-			if result, err = worker(request); err != nil {
+	in = make(chan Request)
+
+	go func(){
+		for{
+			s.WorkerReady(in)
+			request = <- in
+			if parseResult, err = worker(request); err!=nil{
 				continue
 			}
-
-			out <- result
+			out <- parseResult
 		}
 	}()
 }
