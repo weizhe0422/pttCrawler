@@ -1,7 +1,8 @@
-package parser
+package PTT
 
 import (
-	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/engine"
+	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/Engine"
+	"log"
 	"regexp"
 )
 
@@ -16,23 +17,25 @@ const BoardListReg = `        <div class="b-ent">
 
 const BoardUrlHead = "https://www.ptt.cc"
 
-func ParseHotBoardList(content []byte) engine.ParseResult {
-	var (
-		compile *regexp.Regexp
-		matchs  [][][]byte
-		result  engine.ParseResult
+func ParseHotBoardList (content []byte) Engine.ParseResult{
+	var(
+		compiler *regexp.Regexp
+		matchs [][][]byte
+		result Engine.ParseResult
 	)
-	compile = regexp.MustCompile(BoardListReg)
-	matchs = compile.FindAllSubmatch(content, -1)
 
-	result = engine.ParseResult{}
+	compiler = regexp.MustCompile(BoardListReg)
+	matchs = compiler.FindAllSubmatch(content, -1)
 
-	for _, match := range matchs {
-		result.Items = append(result.Items, "Board Name: "+string(match[2]))
-		result.Requests = append(result.Requests, engine.Request{
+	result = Engine.ParseResult{}
+	for _, match := range matchs{
+		log.Printf("URL: %s ",BoardUrlHead + string(match[1]))
+		result.Requests = append(result.Requests, Engine.Request{
 			URL:       BoardUrlHead + string(match[1]),
 			ParseFunc: ParseArticleList,
 		})
+		result.Items = append(result.Items, string(match[2]))
 	}
+
 	return result
 }

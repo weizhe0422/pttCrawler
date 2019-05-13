@@ -1,30 +1,29 @@
-package parser
+package PTT
 
 import (
-	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/engine"
+	"github.com/weizhe0422/GolangPracticeProject/FromMoocsAgain/crawler/Engine"
 	"regexp"
 )
 
 const ArticleListRegexp = `<a href="(/bbs/[A-Za-z0-9]+/M.[0-9]+.A.[a-zA-Z0-9]+.html)">([^<>]*)</a>`
 const ArticleURLHead = "https://www.ptt.cc"
 
-func ParseArticleList(content []byte) engine.ParseResult {
+func ParseArticleList(content []byte) Engine.ParseResult {
 	var (
 		compile *regexp.Regexp
 		matchs  [][][]byte
-		result  engine.ParseResult
+		result  Engine.ParseResult
 	)
 
 	compile = regexp.MustCompile(ArticleListRegexp)
 	matchs = compile.FindAllSubmatch(content, -1)
 
-	result = engine.ParseResult{}
-
+	result = Engine.ParseResult{}
 	for _, match := range matchs {
-		result.Items = append(result.Items, "Article title: "+string(match[2]))
-		result.Requests = append(result.Requests, engine.Request{
+		result.Items = append(result.Items, string(match[2]))
+		result.Requests = append(result.Requests, Engine.Request{
 			URL:       ArticleURLHead + string(match[1]),
-			ParseFunc: engine.NilParseFunc,
+			ParseFunc: Engine.NilParseFunc,
 		})
 	}
 
