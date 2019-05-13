@@ -1,7 +1,7 @@
-package engine
+package Engine
 
 type Request struct {
-	Url       string
+	URL         string
 	ParseFunc func([]byte) ParseResult
 }
 
@@ -10,6 +10,6 @@ type ParseResult struct {
 	Items    []interface{}
 }
 
-func NilParser([]byte) ParseResult {
+func NilParseFunc([]byte) ParseResult {
 	return ParseResult{}
 }
